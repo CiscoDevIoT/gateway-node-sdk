@@ -1,0 +1,27 @@
+{
+  "name": "cisco-deviot",
+  "version": "0.1.4",
+  "description": "NodeJS SDK for DevIoT Gateway Service",
+  "keywords": [
+    "deviot",
+    "gateway",
+    "iot"
+  ],
+  "dependencies": {
+    "events": "1.1.*",
+    "mqtt": "1.*"
+  },
+  "devDependencies": {
+    "webpack": "^1.0.0",
+    "webpack-node-externals": "^1.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-core": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CiscoDevIoT/gateway-node-sdk"
+  },
+  "author": "Hai-Hua Xiao <haihxiao@cisco.com>",
+  "license": "Apache-2.0"
+}
