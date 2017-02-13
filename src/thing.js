@@ -14,13 +14,13 @@
 
 
 // PropertyTypeInt represents number type of a property
-module.exports.PropertyTypeInt = 0;
+export const PropertyTypeInt = 0;
 // PropertyTypeString represents string type of a property
-module.exports.PropertyTypeString = 1;
+export const PropertyTypeString = 1;
 // PropertyTypeBool represents boolean type of a property
-module.exports.PropertyTypeBool = 2;
+export const PropertyTypeBool = 2;
 // PropertyTypeColor represents color type of a property
-module.exports.PropertyTypeColor = 3;
+export const PropertyTypeColor = 3;
 
 export default class Thing {
     constructor(id, name) {
