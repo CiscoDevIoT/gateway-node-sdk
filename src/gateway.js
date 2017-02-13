@@ -29,47 +29,51 @@ let _GateWayPrivates = WeakMapForPrivate();
 export default class Gateway extends EventEmitter {
     constructor(name, deviotServer, mqttServer, account, opts) {
         super();
-		console.log('||||=>');
+        console.log('||||=>');
         opts = Object.assign({}, opts);
 
-		let gateway = {
+        let gateway = {
             name: name,
             owner: account || "",
             kind: opts.kind || "device",
             mode: module.exports.MODE_MQTT,
             sensors: [],
-			host,
-			port,
-			data,
-			action
+            host,
+            port,
+            data,
+            action
         };
 
-		let connector = new MqttConnector(gateway, mqttServer);
-		let {host,port,data,action} = connector;
+        let connector = new MqttConnector(gateway, mqttServer);
+        let {
+            host,
+            port,
+            data,
+            action
+        } = connector;
 
+        Object.assign(this, {
+            connector,
+            deviotServer,
+            mqttServer,
+            gateway,
+            things: {},
+            sensors: {}
+        });
 
-		Object.assign(this,{
-			connector,
-			deviotServer,
-			mqttServer,
-			gateway,
-			things:{},
-			sensors:{}
-		});
-
-		let registerGateway = Gateway_registerGateway.bind(this);
-		_GateWayPrivates.set(this, new Map());
-		_GateWayPrivates.get(this).set('registerGateway', registerGateway);
+        let registerGateway = Gateway_registerGateway.bind(this);
+        _GateWayPrivates.set(this, new Map());
+        _GateWayPrivates.get(this).set('registerGateway', registerGateway);
 
         this.connector.on('connect', () => {
             registerGateway();
-			_registration_timer.set(this, setInterval(registerGateway, 60000));
+            _registration_timer.set(this, setInterval(registerGateway, 60000));
         });
 
         this.connector.on('action', (message) => {
             let id = message.name;
             let thing = this.things[id];
-            if(thing) {
+            if (thing) {
                 callAction(thing, message.action, message)
             } else {
                 console.error(`thing ${id} not registered`)
@@ -78,7 +82,7 @@ export default class Gateway extends EventEmitter {
     }
 
     start() {
-        if(_registration_timer.get(this) == 0) {
+        if (_registration_timer.get(this) == 0) {
             this.connector.start();
         } else {
             console.warn("gateway service already started")
@@ -86,10 +90,10 @@ export default class Gateway extends EventEmitter {
     }
 
     stop() {
-        if(_registration_timer.get(this) != 0) {
+        if (_registration_timer.get(this) != 0) {
             this.emit('disconnect', null);
             clearInterval(_registration_timer.get(this));
-            _registration_timer.set(this,0);
+            _registration_timer.set(this, 0);
             this.connector.stop();
             console.info("gateway service stopped")
         } else {
@@ -114,7 +118,7 @@ export default class Gateway extends EventEmitter {
     }
 
     unregister(id) {
-        if(id in this.things) {
+        if (id in this.things) {
             let thing_model = this.sensors[id];
             delete this.things[id];
             delete this.sensors[id];
@@ -130,41 +134,43 @@ export default class Gateway extends EventEmitter {
 }
 
 function Gateway_registerGateway() {
-	let deviot_url = this.deviotServer;
+    let deviot_url = this.deviotServer;
     deviot_url = url.parse(deviot_url);
     let options = {
         host: deviot_url.hostname,
         port: deviot_url.port,
         path: '/api/v1/gateways',
         method: 'POST',
-        headers: {'Content-Type': 'application/json'}
+        headers: {
+            'Content-Type': 'application/json'
+        }
     };
     let gateway = this.gateway;
     let callback = function(response, error) {
         if (response.statusCode < 300) {
-            if(_registered.get(this) != 2) {
+            if (_registered.get(this) != 2) {
                 console.info(`gateway ${gateway.name} registered`);
-                _registered.set(this,2);
+                _registered.set(this, 2);
             }
         } else {
-            if(_registered.get(this) != 1) {
-				console.log(response.statusCode, response);
+            if (_registered.get(this) != 1) {
+                console.log(response.statusCode, response);
                 console.error(`fail to register gateway ${gateway.name}: ${error}`);
-                _registered.set(this,1);
+                _registered.set(this, 1);
             }
         }
     };
     let request = http.request(options, callback);
     gateway.sensors = [];
-    for(let k in this.sensors) {
+    for (let k in this.sensors) {
         gateway.sensors.push(this.sensors[k])
     }
     let gateway_json = JSON.stringify(gateway);
     request.write(gateway_json);
     request.on('error', (error) => {
-        if(_registered.get(this) != 1) {
+        if (_registered.get(this) != 1) {
             console.error(`fail to register gateway ${gateway.name}: ${error}`);
-            _registered.set(this,1);
+            _registered.set(this, 1);
         }
     });
     request.end()

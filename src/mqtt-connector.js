@@ -20,25 +20,27 @@ export default class MqttConnector extends EventEmitter {
     constructor(gateway, mqttServer) {
         super();
         let ns = gateway.owner.replace('@', '-').replace('.', '-').replace('/', '-');
-        if(ns == "") ns = "_";
+        if (ns == "") ns = "_";
         let name = gateway.name.replace("/", "_");
         let mqtt_url = url.parse(mqttServer);
-		
-		Object.assign(this,{
-			gateway,
-			mqttServer,
-			connected:false,
-			data:`/deviot/${ns}/${name}/data/`,
-			action:`/deviot/${ns}/${name}/action/`,
-			host:mqtt_url.hostname,
-			port:mqtt_url.port || 1883
-		})
+
+        Object.assign(this, {
+            gateway,
+            mqttServer,
+            connected: false,
+            data: `/deviot/${ns}/${name}/data/`,
+            action: `/deviot/${ns}/${name}/action/`,
+            host: mqtt_url.hostname,
+            port: mqtt_url.port || 1883
+        })
     }
 
     start() {
-        if(!this.connected) {
+        if (!this.connected) {
             console.info("connecting to " + this.mqttServer + " ...");
-            this.client = mqtt.connect(this.mqttServer, {clean: true});
+            this.client = mqtt.connect(this.mqttServer, {
+                clean: true
+            });
             this.client.on('connect', () => {
                 this.connected = true;
                 this.emit('connect', null);
@@ -56,7 +58,7 @@ export default class MqttConnector extends EventEmitter {
     }
 
     stop() {
-        if(this.connected) {
+        if (this.connected) {
             this.connected = false;
             this.client.unsubscribe(this.action);
             this.client.end();
