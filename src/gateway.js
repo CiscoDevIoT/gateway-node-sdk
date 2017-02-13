@@ -29,6 +29,7 @@ let _GateWayPrivates = WeakMapForPrivate();
 export default class Gateway extends EventEmitter {
     constructor(name, deviotServer, mqttServer, account, opts) {
         super();
+		console.log('||||=>');
         opts = Object.assign({}, opts);
 
 		let gateway = {
