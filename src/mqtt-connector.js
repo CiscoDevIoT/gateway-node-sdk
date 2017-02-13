@@ -19,17 +19,20 @@ import url from "url";
 export default class MqttConnector extends EventEmitter {
     constructor(gateway, mqttServer) {
         super();
-        this.gateway = gateway;
-        this.mqttServer = mqttServer;
-        this.connected = false;
         let ns = gateway.owner.replace('@', '-').replace('.', '-').replace('/', '-');
         if(ns == "") ns = "_";
         let name = gateway.name.replace("/", "_");
-        this.data = `/deviot/${ns}/${name}/data/`;
-        this.action = `/deviot/${ns}/${name}/action/`;
         let mqtt_url = url.parse(mqttServer);
-        this.host = mqtt_url.hostname;
-        this.port = mqtt_url.port || 1883;
+		
+		Object.assign(this,{
+			gateway,
+			mqttServer,
+			connected:false,
+			data:`/deviot/${ns}/${name}/data/`,
+			action:`/deviot/${ns}/${name}/action/`,
+			host:mqtt_url.hostname,
+			port:mqtt_url.port || 1883
+		})
     }
 
     start() {
