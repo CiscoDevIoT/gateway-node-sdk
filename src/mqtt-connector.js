@@ -24,14 +24,16 @@ export default class MqttConnector extends EventEmitter {
         let name = gateway.name.replace("/", "_");
         let mqtt_url = url.parse(mqttServer);
 
-        Object.assign(this, {
-            gateway,
-            mqttServer,
-            connected: false,
+        Object.assign(gateway, {
             data: `/deviot/${ns}/${name}/data/`,
             action: `/deviot/${ns}/${name}/action/`,
             host: mqtt_url.hostname,
             port: mqtt_url.port || 1883
+        })
+        Object.assign(this, {
+            gateway,
+            mqttServer,
+            connected: false,
         })
     }
 
@@ -44,7 +46,7 @@ export default class MqttConnector extends EventEmitter {
             this.client.on('connect', () => {
                 this.connected = true;
                 this.emit('connect', null);
-                this.client.subscribe(this.action);
+                this.client.subscribe(this.gateway.action);
                 console.info(`mqtt server ${this.mqttServer} connected`);
             });
 
@@ -60,7 +62,7 @@ export default class MqttConnector extends EventEmitter {
     stop() {
         if (this.connected) {
             this.connected = false;
-            this.client.unsubscribe(this.action);
+            this.client.unsubscribe(this.gateway.action);
             this.client.end();
             console.info(`mqtt server ${this.mqttServer} disconnected`);
         } else {
@@ -69,6 +71,6 @@ export default class MqttConnector extends EventEmitter {
     }
 
     publish(data) {
-        this.client.publish(this.data, JSON.stringify(data))
+        this.client.publish(this.gateway.data, JSON.stringify(data))
     }
 }

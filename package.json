@@ -1,6 +1,6 @@
 {
   "name": "cisco-deviot",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "NodeJS SDK for DevIoT Gateway Service",
   "keywords": [
     "deviot",

@@ -45,18 +45,11 @@ export default class Gateway extends EventEmitter {
         };
 
         let connector = new MqttConnector(gateway, mqttServer);
-        let {
-            host,
-            port,
-            data,
-            action
-        } = connector;
-
         Object.assign(this, {
-            connector,
             deviotServer,
             mqttServer,
             gateway,
+            connector,
             things: {},
             sensors: {}
         });
@@ -154,8 +147,7 @@ function Gateway_registerGateway() {
             }
         } else {
             if (_registered.get(this) != 1) {
-                console.log(response.statusCode, response);
-                console.error(`fail to register gateway ${gateway.name}: ${error}`);
+                console.error(`failed to register gateway ${gateway.name} to ${deviot_url.hostname}:${deviot_url.port} - ${response.statusCode}`);
                 _registered.set(this, 1);
             }
         }
@@ -165,8 +157,7 @@ function Gateway_registerGateway() {
     for (let k in this.sensors) {
         gateway.sensors.push(this.sensors[k])
     }
-    let gateway_json = JSON.stringify(gateway);
-    request.write(gateway_json);
+    request.write(JSON.stringify(gateway));
     request.on('error', (error) => {
         if (_registered.get(this) != 1) {
             console.error(`fail to register gateway ${gateway.name}: ${error}`);
